@@ -1,0 +1,71 @@
+version: "3"
+services:
+
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex-stack
+    environment:
+      - TZ=${TZENV}
+      - PUID=0
+      - PGID=0
+      - UMASK=002
+      - VERSION=docker
+      - PLEX_CLAIM= ${PLEXCLAIMCODE}
+    volumes:
+      - ${PLEXCONFIG}:/config
+      - ${PLEXTV}:/tv
+      - ${PLEXMOVIES}:/movies
+    devices:
+      - /dev/dri:/dev/dri
+    networks: 
+      MyMacvlan:
+        ipv4_address: 10.10.20.220
+    restart: unless-stopped
+
+  tdarr:
+    container_name: tdarr-stack
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - HANDBRAKE=1.5.1
+      - HOME=/home/Tdarr
+      - internalNode=true
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en_US.UTF-8
+      - LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+      - LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri
+      - NODE_PORT=8267
+      - nodeID=MyInternalNode
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PGID=${PGIDENV}
+      - PUID=${PUIDENV}
+      - SERVER_PORT=8266
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - TERM=xterm
+      - TZ=${TZENV}
+      - UMASK=002
+      - WEB_UI_PORT=8265
+      - webUIPort=8265
+    image: ghcr.io/haveagitgat/tdarr:latest
+   
+    networks:
+      MyMacvlan:
+        ipv4_address: 10.10.20.221
+    ports:
+      - 8265:8265/tcp
+      - 8266:8266/tcp
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - /srv/datastore/docker/tdarr:/app
+      - /srv/mainpool/media:/media
+      - /srv/mainpool/media/transcode:/temp
+
+networks:
+  MyMacvlan:
+    external: true
+    name: MyMacvlan
