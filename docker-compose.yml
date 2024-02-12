@@ -4,6 +4,7 @@ services:
   plex:
     image: linuxserver/plex:latest
     container_name: plex-stack
+    env_file: .env
     environment:
       - TZ=${TZENV}
       - PUID=0
@@ -26,6 +27,7 @@ services:
     container_name: tdarr-stack
     devices:
       - /dev/dri:/dev/dri
+    env_file: .env
     environment:
       - HANDBRAKE=1.5.1
       - HOME=/home/Tdarr
@@ -50,7 +52,6 @@ services:
       - WEB_UI_PORT=8265
       - webUIPort=8265
     image: ghcr.io/haveagitgat/tdarr:latest
-   
     networks:
       MyMacvlan:
         ipv4_address: 10.10.20.221
